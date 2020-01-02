@@ -14,7 +14,7 @@ from jinja2 import Template, UndefinedError
 DEFAULT_TMPL = """
 {% if customer %}Customer: `{{customer}}` {% endif %}
 *[{{ status.capitalize() }}] {{ environment }} {{ severity.capitalize() }}*
-{{ event | replace("_","\_") }} {{ resource.capitalize() }}
+{{ event }} {{ resource.capitalize() }}
 ```
 {{ text }}
 ```
@@ -67,7 +67,8 @@ class ZulipBot(PluginBase):
         return alert
 
     def post_receive(self, alert):
-        if alert.repeat:
+        if alert.repeat and alert.status == 'ack':
+            # skip sending message if original alert ACKed
             return
 
         try:
