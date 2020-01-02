@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 version = '1.0.0'
 
 setup(
-    name="alerta-zulpi",
+    name="alerta-zulip",
     version=version,
     description='Alerta plugin for Zulip',
     url='https://github.com/opentelekomcloud-infra/alerta',
@@ -14,7 +14,8 @@ setup(
     py_modules=['alerta_zulip'],
     install_requires=[
         'zulip',
-        'jinja2'
+        'jinja2',
+        'cryptography>=2.8'
     ],
     include_package_data=True,
     zip_safe=True,
