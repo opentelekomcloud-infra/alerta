@@ -67,7 +67,7 @@ class ZulipBot(PluginBase):
         return alert
 
     def post_receive(self, alert):
-        if alert.repeat and alert.status == 'ack':
+        if alert.repeat and alert.status in ['ack', 'blackout', 'closed']:
             # skip sending message if original alert ACKed
             return
 
