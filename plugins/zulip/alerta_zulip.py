@@ -38,7 +38,7 @@ ZULIP_ALLOW_UNSECURE = app.config.get('ZULIP_ALLOW_UNSECURE') \
                        or os.environ.get('ZULIP_ALLOW_UNSECURE')
 ZULIP_TEMPLATE = app.config.get('ZULIP_TEMPLATE') \
                  or os.environ.get('ZULIP_TEMPLATE')
-ZULIP_SERVICE_TOPIC_MAP = app.confin.get('ZULIP_SERVICE_TOPIC_MAP')
+ZULIP_SERVICE_TOPIC_MAP = app.config.get('ZULIP_SERVICE_TOPIC_MAP')
 
 
 class ZulipBot(PluginBase):
