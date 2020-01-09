@@ -38,6 +38,7 @@ ZULIP_ALLOW_UNSECURE = app.config.get('ZULIP_ALLOW_UNSECURE') \
                        or os.environ.get('ZULIP_ALLOW_UNSECURE')
 ZULIP_TEMPLATE = app.config.get('ZULIP_TEMPLATE') \
                  or os.environ.get('ZULIP_TEMPLATE')
+ZULIP_SERVICE_TOPIC_MAP = app.confin.get('ZULIP_SERVICE_TOPIC_MAP')
 
 
 class ZulipBot(PluginBase):
@@ -79,10 +80,32 @@ class ZulipBot(PluginBase):
         response = None
 
         try:
+            message_to = None
+            message_subject = None
+            if (ZULIP_SERVICE_TOPIC_MAP
+                    and isinstance(ZULIP_SERVICE_TOPIC_MAP, dict)):
+                # ZULIP_SERVICE_TOPIC_MAP is a dict in the form
+                # {'service1':
+                #    {'to': 'stream_name', 'subject': 'topic_name'}
+                # }
+                for srv in alert.service:
+                    if srv in ZULIP_SERVICE_TOPIC_MAP:
+                        val = ZULIP_SERVICE_TOPIC_MAP[srv]
+                        if 'subject' in val:
+                            message_subject = val['subject']
+                        if 'to' in val:
+                            message_to = val['to']
+                        break
+
+            if not message_to:
+                message_to = ZULIP_TO
+            if not message_subject:
+                message_subject = ZULIP_SUBJECT
+
             request = {
                 'type': ZULIP_TYPE,
-                'to': ZULIP_TO,
-                'subject': ZULIP_SUBJECT,
+                'to': message_to,
+                'subject': message_subject,
                 'content': text
             }
             LOG.debug('Zulip: message=%s', text)
