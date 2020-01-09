@@ -100,12 +100,12 @@ class ZulipBot(PluginBase):
             if not message_to:
                 message_to = ZULIP_TO
             if not message_subject:
-                message_subject = ZULIP_SUBJECT
+                message_subject = alert.service.join('_')
 
             request = {
-                'type': ZULIP_TYPE,
-                'to': message_to,
-                'subject': message_subject,
+                'type': ZULIP_TYPE.strip(),
+                'to': message_to.strip(),
+                'subject': message_subject.strip(),
                 'content': text
             }
             LOG.debug('Zulip: message=%s', text)
