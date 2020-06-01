@@ -26,6 +26,7 @@ DB_HOST = app.config.get('DB_HOST') or os.environ.get('DB_HOST')
 DB_PORT = app.config.get('DB_PORT') or os.environ.get('DB_PORT')
 DB_USER = app.config.get('DB_USER') or os.environ.get('DB_USER')
 DB_PASSWORD = app.config.get('DB_PASSWORD') or os.environ.get('DB_PASSWORD')
+DB_NAME = app.config.get('DB_NAME') or os.environ.get('DB_NAME', 'alerta')
 
 
 class ZulipBot(PluginBase):  # PluginBase
@@ -35,7 +36,8 @@ class ZulipBot(PluginBase):  # PluginBase
             'host': DB_HOST,
             'port': DB_PORT,
             'username': DB_USER,
-            'password': DB_PASSWORD
+            'password': DB_PASSWORD,
+            'dbname': DB_NAME
         }
 
         zulip_args = {
@@ -120,7 +122,7 @@ class ZulipBot(PluginBase):  # PluginBase
             port=self.db_args['port'],
             user=self.db_args['username'],
             password=self.db_args['password'],
-            db='alerta'
+            db=self.db_args['dbname']
         )
         db.__connect__()
         self.alerta_config = db.get_alerta_configuration()
