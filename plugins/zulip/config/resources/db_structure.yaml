@@ -1,0 +1,30 @@
+- name: templates
+  params: 'CREATE TABLE IF NOT EXISTS templates
+         (
+           template_id SERIAL PRIMARY KEY,
+           template_name VARCHAR(255) NOT NULL,
+           template_data TEXT NOT NULL
+         )'
+- name: topics
+  params: 'CREATE TABLE IF NOT EXISTS topics
+         (
+           topic_id SERIAL PRIMARY KEY,
+           topic_name VARCHAR(40) NOT NULL,
+           zulip_to VARCHAR(255),
+           zulip_subject VARCHAR(255),
+           templ_id SERIAL REFERENCES templates
+         )'
+- name: alerta_environments
+  params: 'CREATE TABLE IF NOT EXISTS alerta_environments
+         (
+           id SERIAL PRIMARY KEY,
+           name VARCHAR(100)
+         )'
+- name: skip_topics
+  params: 'CREATE TABLE IF NOT EXISTS skip_topics
+         (
+           id SERIAL PRIMARY KEY,
+           skip BOOLEAN DEFAULT FALSE,
+           environment_id SERIAL REFERENCES alerta_environments,
+           topic_id SERIAL REFERENCES topics
+         )'

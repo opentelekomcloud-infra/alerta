@@ -1,6 +1,9 @@
 """Configurations fixed for plugin"""
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List
+
+import tyaml
+from ocomone import Resources
 
 
 @dataclass(frozen=True)
@@ -22,28 +25,6 @@ class AlertaConfiguration:
     repeat_interval: int
 
 
-@dataclass()
-class Blackouts:
-    """
-    BlackoutStructure class
-
-    :param service: list of services separated by comma
-    """
-    blackout_id: int
-    environment: str
-    resource: str
-    service: List
-    event_name: str
-    group_name: str
-    tags: str
-    start_time: str
-    duration: int
-    text: str
-
-    def __post_init__(self):
-        self.service = self.service.split(',')
-
-
 @dataclass(frozen=True)
 class TopicMap:
     """Topic map class"""
@@ -51,10 +32,32 @@ class TopicMap:
     subject: str
 
 
-def topic_map(topics: list):
+@dataclass(frozen=True)
+class SkipMap:
+    """Topic map class"""
+    skip: bool
+    environment: str
+    topic: str
+
+
+def topic_map(data: list):
     """Topic map"""
     map = {}
-    topics = {item[0]: item[1:] for item in topics}
-    for key, value in topics.items():
+    dct = {item[0]: item[1:] for item in data}
+    for key, value in dct.items():
         map.update({key: TopicMap(*value)})
     return map
+
+
+_CONFIGS = Resources(__file__)
+
+
+def _cfg_load(cfg_file: str, cfg_class):
+    with open(cfg_file, 'r') as src_cfg:
+        configs = tyaml.load(src_cfg, cfg_class)  # type: List[BaseConfiguration]
+    result = {cfg.name: cfg for cfg in configs}
+    return result
+
+
+DATABASE: Dict[str, BaseConfiguration] = _cfg_load(_CONFIGS['db_structure.yaml'], List[BaseConfiguration])
+DB_ROWS: Dict[str, BaseConfiguration] = _cfg_load(_CONFIGS['db_init_data.yaml'], List[BaseConfiguration])

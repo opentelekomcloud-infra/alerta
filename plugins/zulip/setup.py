@@ -16,7 +16,9 @@ setup(
         'zulip>=0.7.0',
         'jinja2',
         'cryptography>=2.8',
-        'psycopg2-binary'
+        'psycopg2-binary',
+        'ocomone>=0.4.3',
+        'pyyaml-typed>=0.1.0'
     ],
     include_package_data=True,
     zip_safe=True,
