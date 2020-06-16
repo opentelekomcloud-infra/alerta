@@ -1,14 +1,22 @@
 """Configurations fixed for plugin"""
-from dataclasses import dataclass
-from typing import Dict, List
-
-import tyaml
-
 import logging
 import os
+from dataclasses import dataclass
+from typing import (
+    Dict,
+    List,
+    Type as __Type,
+    TypeVar as __TypeVar
+)
+
+import yaml
+
+from plugins.zulip.loader import special_loader
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
+
+T = __TypeVar("T")
 
 
 class Resources:
@@ -41,6 +49,11 @@ class Resources:
         if os.path.isabs(resource_name):
             return resource_name
         return os.path.abspath(f"{self.resource_root}/{resource_name}")
+
+
+def load(stream, as_type: __Type[T]) -> T:
+    """Load yaml"""
+    return yaml.load(stream, Loader=special_loader(as_type))
 
 
 @dataclass(frozen=True)
@@ -91,7 +104,7 @@ _CONFIGS = Resources(__file__)
 
 def _cfg_load(cfg_file: str, cfg_class):
     with open(cfg_file, 'r') as src_cfg:
-        configs = tyaml.load(src_cfg, cfg_class)  # type: List[BaseConfiguration]
+        configs = load(src_cfg, cfg_class)  # type: List[BaseConfiguration]
     result = {cfg.name: cfg for cfg in configs}
     return result
 
