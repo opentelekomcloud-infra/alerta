@@ -6,7 +6,7 @@ import zulip
 from jinja2 import Template, UndefinedError
 
 from plugins.zulip.config.static_config import DATABASE, DB_ROWS
-from plugins.zulip.database import DBHelper
+from plugins.zulip.helpers.database import DBHelper
 
 try:
     from alerta.plugins import app  # alerta >= 5.0
