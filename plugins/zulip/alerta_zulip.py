@@ -16,24 +16,47 @@ from alerta.plugins import PluginBase
 
 LOG = logging.getLogger('alerta.plugins.zulip')
 
-ZULIP_API_KEY = app.config.get('ZULIP_API_KEY') or os.environ.get('ZULIP_API_KEY')
-ZULIP_EMAIL = app.config.get('ZULIP_EMAIL') or os.environ.get('ZULIP_EMAIL')
-ZULIP_SITE = app.config.get('ZULIP_SITE') or os.environ.get('ZULIP_SITE')
-ZULIP_TYPE = app.config.get('ZULIP_TYPE') or os.environ.get('ZULIP_TYPE', 'stream')
-ZULIP_TO = app.config.get('ZULIP_TO') or os.environ.get('ZULIP_TO')
-ZULIP_SUBJECT = app.config.get('ZULIP_SUBJECT') or os.environ.get('ZULIP_SUBJECT', 'APImon alert')
-ZULIP_ALLOW_UNSECURE = app.config.get('ZULIP_ALLOW_UNSECURE') or os.environ.get('ZULIP_ALLOW_UNSECURE')
-DB_CONNECTION_STRING = app.config.get('DB_CONNECTION_STRING') or os.environ.get('DB_CONNECTION_STRING')
-REPEAT_INTERVAL = app.config.get('REPEAT_INTERVAL') or os.environ.get('REPEAT_INTERVAL', 5)
+ZULIP_API_KEY = app.config.get('ZULIP_API_KEY') \
+                or os.environ.get('ZULIP_API_KEY')
+ZULIP_EMAIL = app.config.get('ZULIP_EMAIL') \
+              or os.environ.get('ZULIP_EMAIL')
+ZULIP_SITE = app.config.get('ZULIP_SITE') \
+             or os.environ.get('ZULIP_SITE')
+ZULIP_TYPE = app.config.get('ZULIP_TYPE') \
+             or os.environ.get('ZULIP_TYPE', 'stream')
+ZULIP_TO = app.config.get('ZULIP_TO') \
+           or os.environ.get('ZULIP_TO')
+ZULIP_SUBJECT = app.config.get('ZULIP_SUBJECT') \
+                or os.environ.get('ZULIP_SUBJECT', 'APImon alert')
+ZULIP_ALLOW_UNSECURE = app.config.get('ZULIP_ALLOW_UNSECURE') \
+                       or os.environ.get('ZULIP_ALLOW_UNSECURE')
+ZULIP_REPEAT_INTERVAL = app.config.get('ZULIP_REPEAT_INTERVAL') \
+                        or os.environ.get('ZULIP_REPEAT_INTERVAL', 5)
+DATABASE_URL = app.config.get('DATABASE_URL') \
+               or os.environ.get('DATABASE_URL')
+
+DEFAULT_TMPL = """
+{% if customer %}Customer: `{{customer}}` {% endif %}
+*[{{ status.capitalize() }}] {{ environment }} {{ severity.capitalize() }}*
+{{ event }} {{ resource.capitalize() }}
+```
+{{ text }}
+```
+"""
 
 
 class ZulipBot(PluginBase):  # PluginBase
 
     def __init__(self, name=None):
-        self.connection_string = DB_CONNECTION_STRING
+        self.connection_string = DATABASE_URL
         self.db = DBHelper(self.connection_string)
         self.structure = DATABASE
         self.db_data = DB_ROWS
+
+        self.ZULIP_TEMPLATES = {}
+        self.ZULIP_SERVICE_TOPIC_MAP = {}
+        self.SKIP_MAP = []
+
         zulip_args = {
             'site': ZULIP_SITE,
             'email': ZULIP_EMAIL,
@@ -62,7 +85,7 @@ class ZulipBot(PluginBase):  # PluginBase
 
         if alert.status in ['ack', 'blackout', 'closed']:
             return
-        elif alert.repeat and delta_minutes(alert.last_receive_time) <= REPEAT_INTERVAL:
+        elif alert.repeat and delta_minutes(alert.last_receive_time) <= ZULIP_REPEAT_INTERVAL:
             return
         for item in self.SKIP_MAP:
             if alert.environment == item.environment and template_name == item.topic and item.skip is True:
@@ -71,7 +94,7 @@ class ZulipBot(PluginBase):  # PluginBase
         if template_name in self.ZULIP_TEMPLATES:
             template = Template(self.ZULIP_TEMPLATES[template_name])
         else:
-            template = Template(self.ZULIP_TEMPLATES['DEFAULT_TMPL'])
+            template = Template(DEFAULT_TMPL)
 
         try:
             text = template.render(alert.__dict__)
