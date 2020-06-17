@@ -22,4 +22,6 @@
     check:
       jobs:
         - alerta-build-image
+    gate:
+      jobs:
         - alerta-upload-image
