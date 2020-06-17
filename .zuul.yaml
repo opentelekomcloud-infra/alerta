@@ -1,4 +1,19 @@
+- job:
+    name: alerta-build-image
+    parent: build-docker-image
+    description: Build alerta container image
+    timeout: 2700  # 45 minutes
+    provides: alerta-container-image
+    vars:
+      docker_images:
+        - context: .
+          repository: otcinfra/alerta
+          tags:
+            # If zuul.tag is defined: [ '3', '3.19', '3.19.0' ].  Only works for 3-component tags.
+            # Otherwise: ['latest']
+            &imagetag "{{ zuul.tag is defined | ternary([zuul.get('tag', '').split('.')[0], '.'.join(zuul.get('tag', '').split('.')[:2]), zuul.get('tag', '')], ['latest']) }}"
+
 - project:
     check:
       jobs:
-        - build-docker-image
+        - alerta-build-image
