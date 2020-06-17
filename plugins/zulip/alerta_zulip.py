@@ -5,8 +5,8 @@ from datetime import datetime
 import zulip
 from jinja2 import Template, UndefinedError
 
-from config.static_config import DATABASE, DB_ROWS
-from helpers.database import DBHelper
+from zulipbot.config.static_config import DATABASE, DB_ROWS
+from zulipbot.database import DBHelper
 
 try:
     from alerta.plugins import app  # alerta >= 5.0
@@ -71,7 +71,6 @@ class ZulipBot(PluginBase):  # PluginBase
         for item in self.db_data.values():
             self.db.query(item.params)
         self.db.__disconnect__()
-
         super(ZulipBot, self).__init__(name)
 
     def pre_receive(self, alert):

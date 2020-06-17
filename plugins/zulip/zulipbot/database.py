@@ -2,7 +2,7 @@ import logging
 
 import psycopg2
 
-from config.static_config import topic_map, SkipMap
+from zulipbot.config.static_config import topic_map, SkipMap
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
@@ -20,6 +20,7 @@ class DBHelper:
             self.con = psycopg2.connect(self.connection_string)
             self.con.autocommit = True
             self.cur = self.con.cursor()
+            LOGGER.info(f'Connection to database opened')
         except (Exception, psycopg2.Error) as error:
             raise error('Error while connecting to PostgreSQL')
 

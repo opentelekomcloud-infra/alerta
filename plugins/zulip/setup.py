@@ -1,8 +1,6 @@
-import os
-
 from setuptools import setup, find_packages
 
-version = '1.1.0'
+version = '1.1.1'
 
 setup(
     name="alerta-zulip",
@@ -10,10 +8,14 @@ setup(
     description='Alerta plugin for Zulip',
     url='https://github.com/opentelekomcloud-infra/alerta',
     license='Apache-2.0',
-    author='Artem Goncharov, Anton Sidelnikov',
-    author_email='artem.goncharov@gmail.com, a.sidelnikov@t-systems.com',
-    packages=find_packages(),
-    package_data={"": ["*.yaml"]},
+    author='Artem Goncharov',
+    author_email='artem.goncharov@gmail.com',
+    packages=[
+        "zulipbot",
+        "zulipbot.config",
+        "zulipbot.config.resources"
+    ],
+    package_data={"zulipbot.config.resources": ["*.yaml"]},
     py_modules=['alerta_zulip'],
     install_requires=[
         'zulip>=0.7.0',
