@@ -5,8 +5,8 @@ from datetime import datetime
 import zulip
 from jinja2 import Template, UndefinedError
 
-from plugins.zulip.config.static_config import DATABASE, DB_ROWS
-from plugins.zulip.helpers.database import DBHelper
+from config.static_config import DATABASE, DB_ROWS
+from helpers.database import DBHelper
 
 try:
     from alerta.plugins import app  # alerta >= 5.0
@@ -52,7 +52,6 @@ class ZulipBot(PluginBase):  # PluginBase
         self.db = DBHelper(self.connection_string)
         self.structure = DATABASE
         self.db_data = DB_ROWS
-
         self.ZULIP_TEMPLATES = {}
         self.ZULIP_SERVICE_TOPIC_MAP = {}
         self.SKIP_MAP = []

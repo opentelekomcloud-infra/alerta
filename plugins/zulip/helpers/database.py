@@ -2,7 +2,7 @@ import logging
 
 import psycopg2
 
-from plugins.zulip.config.static_config import topic_map, SkipMap
+from config.static_config import topic_map, SkipMap
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)

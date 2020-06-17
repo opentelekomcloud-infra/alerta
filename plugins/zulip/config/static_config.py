@@ -11,7 +11,7 @@ from typing import (
 
 import yaml
 
-from plugins.zulip.helpers.loader import special_loader
+from helpers.loader import special_loader
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)

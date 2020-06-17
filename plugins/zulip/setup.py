@@ -1,3 +1,5 @@
+import os
+
 from setuptools import setup, find_packages
 
 version = '1.1.0'
@@ -11,6 +13,7 @@ setup(
     author='Artem Goncharov, Anton Sidelnikov',
     author_email='artem.goncharov@gmail.com, a.sidelnikov@t-systems.com',
     packages=find_packages(),
+    package_data={"": ["*.yaml"]},
     py_modules=['alerta_zulip'],
     install_requires=[
         'zulip>=0.7.0',
