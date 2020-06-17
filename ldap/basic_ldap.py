@@ -66,7 +66,7 @@ def login():
     if not email_verified:
         try:
             ldap_result = ldap_connection.search_s(userdn, ldap.SCOPE_SUBTREE, '(objectClass=*)', ['mail'])
-            email = ldap_result[0][1]['mail'][0].decode(sys.stdout.encoding)
+            email = ldap_result[0][1]['mail'][0].decode(sys.stdout.encoding).lower()
             email_verified = True
         except Exception:
             email = '{}@{}'.format(username, domain)
