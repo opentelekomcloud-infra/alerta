@@ -6,4 +6,4 @@ COPY plugins /tmp/plugins
 RUN /venv/bin/pip install /tmp/plugins/zulip
 
 COPY ldap /tmp/ldap
-RUN cd /tmp/ldap && ./update_ldap_library.sh
+RUN cd /tmp/ldap && ./patch_ldap_library.sh
