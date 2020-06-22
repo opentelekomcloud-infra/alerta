@@ -2,21 +2,11 @@
 import logging
 import os
 from dataclasses import dataclass
-from typing import (
-    Dict,
-    List,
-    Type as __Type,
-    TypeVar as __TypeVar
-)
 
 import yaml
 
-from zulipbot.loader import special_loader
-
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
-
-T = __TypeVar("T")
 
 
 class Resources:
@@ -49,11 +39,6 @@ class Resources:
         if os.path.isabs(resource_name):
             return resource_name
         return os.path.abspath(f"{self.resource_root}/{resource_name}")
-
-
-def load(stream, as_type: __Type[T]) -> T:
-    """Load yaml"""
-    return yaml.load(stream, Loader=special_loader(as_type))
 
 
 @dataclass(frozen=True)
@@ -102,12 +87,18 @@ def topic_map(data: list):
 _CONFIGS = Resources(__file__)
 
 
-def _cfg_load(cfg_file: str, cfg_class):
+def _dbcfg_load(cfg_file: str):
+    map = {}
     with open(cfg_file, 'r') as src_cfg:
-        configs = load(src_cfg, cfg_class)  # type: List[BaseConfiguration]
-    result = {cfg.name: cfg for cfg in configs}
-    return result
+        try:
+            config = yaml.safe_load(src_cfg)
+        except yaml.YAMLError as exc:
+            LOGGER.error(exc)
+    dct = {item['name']: item["params"] for item in config}
+    for key, value in dct.items():
+        map.update({key: BaseConfiguration(key, value)})
+    return map
 
 
-DATABASE: Dict[str, BaseConfiguration] = _cfg_load(_CONFIGS['db_structure.yaml'], List[BaseConfiguration])
-DB_ROWS: Dict[str, BaseConfiguration] = _cfg_load(_CONFIGS['db_init_data.yaml'], List[BaseConfiguration])
+DATABASE = _dbcfg_load(_CONFIGS['db_structure.yaml'])
+DB_ROWS = _dbcfg_load(_CONFIGS['db_init_data.yaml'])

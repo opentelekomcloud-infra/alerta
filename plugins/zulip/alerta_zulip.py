@@ -35,6 +35,7 @@ ZULIP_REPEAT_INTERVAL = app.config.get('ZULIP_REPEAT_INTERVAL') \
 DATABASE_URL = app.config.get('DATABASE_URL') \
                or os.environ.get('DATABASE_URL')
 
+
 DEFAULT_TMPL = """
 {% if customer %}Customer: `{{customer}}` {% endif %}
 *[{{ status.capitalize() }}] {{ environment }} {{ severity.capitalize() }}*
