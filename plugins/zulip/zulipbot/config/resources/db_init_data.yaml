@@ -1,0 +1,66 @@
+- name: alerta_environments
+  params: "INSERT INTO alerta_environments (id, name)
+           VALUES
+             (1, 'Production'),
+             (2, 'production'),
+             (3, 'prod'),
+             (4, 'preprod') ON CONFLICT (id) DO NOTHING"
+- name: templates
+  params: "INSERT INTO templates (template_id, template_name, template_data)
+           VALUES
+             (1, 'DEFAULT_TMPL',
+E'{% if customer %}Customer: `{{customer}}` {% endif %}\n
+*[{{ status.capitalize() }}] {{ environment }} {{ severity.capitalize() }}*\n
+{{ event }} {{ resource.capitalize() }}\n
+```\n
+{{ text }}\n
+```'),
+              (2, 'BASE',
+E'[**APImon Alert**](https://alerts.eco.tsi-dev.otc-service.com/alert/{{id}})\n
+{% if customer %}Customer: `{{customer}}` {% endif %}\n
+*Status: [{{ status.capitalize() }}]*\n
+*Environment: {{ environment }}*\n
+*Severity: {{ severity.capitalize() }}*\n
+{% if origin %}*Origin: {{ origin }}*{% endif %}\n
+*Service: {{ service }}, Resource: {{ resource }} has received:*\n
+**{{ event }}**\n
+{% if text is defined and text|length %}\n
+ ```\n
+{{ text }}\n
+ ```\n
+{% endif %}\n
+{% if raw_data %}\n
+```\n
+{{ raw_data }}\n
+ ```\n
+{% endif %}\n
+{% for item in history | selectattr(''change_type'', ''eq'', ''note'') %}\n
+**Note by {{ item.user }}:** *{{item.text}}*\n
+{% endfor %}\n
+{% if ''logUrl'' in attributes %}[Execution Log]({{ attributes.logUrl }}){% endif %}') ON CONFLICT (template_id) DO NOTHING"
+- name: topics
+  params: "INSERT INTO topics(topic_id, topic_name, zulip_to, zulip_subject, templ_id)
+           VALUES
+             (1, 'DEFAULT_TMPL', Null, Null, (SELECT template_id from templates WHERE template_name='DEFAULT_TMPL')),
+             (2, 'apimon_compute', 'Alerts','apimon_compute', (SELECT template_id from templates WHERE template_name='BASE')),
+             (3, 'csm', 'Alerts','csm', (SELECT template_id from templates WHERE template_name='BASE')),
+             (4, 'test', 'Alerts','test', (SELECT template_id from templates WHERE template_name='BASE')),
+             (5, 'apimon_orchestrate', 'Alerts','apimon_orchestrate', (SELECT template_id from templates WHERE template_name='BASE')),
+             (6, 'apimon_cce', 'Alerts','apimon_cce', (SELECT template_id from templates WHERE template_name='BASE')),
+             (7, 'grafana', 'Alerts','grafana', (SELECT template_id from templates WHERE template_name='BASE')),
+             (8, 'apimon_block_storage', 'Alerts','apimon_block_storage', (SELECT template_id from templates WHERE template_name='BASE')),
+             (9, 'zuul_refstack', 'Alerts','zuul_refstack', (SELECT template_id from templates WHERE template_name='BASE')),
+             (10, 'apimon_image', 'Alerts','apimon_image', (SELECT template_id from templates WHERE template_name='BASE')),
+             (11, 'Alerta', 'Alerts','Alerta', (SELECT template_id from templates WHERE template_name='BASE')),
+             (12, 'apimon_endpoint_monitor', 'Alerts','apimon_endpoint_monitor', (SELECT template_id from templates WHERE template_name='BASE')),
+             (13, 'apimon_network', 'Alerts','apimon_network', (SELECT template_id from templates WHERE template_name='BASE')),
+             (14, 'apimon_rds', 'Alerts','apimon_rds', (SELECT template_id from templates WHERE template_name='BASE')),
+             (15, 'apimon_wait', 'Alerts','apimon_wait', (SELECT template_id from templates WHERE template_name='BASE')),
+             (16, 'apimon_task_executor', 'Alerts','apimon_task_executor', (SELECT template_id from templates WHERE template_name='BASE')),
+             (17, 'Announcements', 'Alerts','Announcements', (SELECT template_id from templates WHERE template_name='BASE')),
+             (18, 'apimon_os', 'Alerts','apimon_os', (SELECT template_id from templates WHERE template_name='BASE')) ON CONFLICT (topic_id) DO NOTHING"
+- name: skip_topics
+  params: "INSERT INTO skip_topics(environment_id, topic_id)
+          SELECT alerta_environments.id, topics.topic_id FROM alerta_environments CROSS JOIN topics
+          EXCEPT SELECT skip_topics.environment_id, skip_topics.topic_id FROM skip_topics, alerta_environments, topics
+          WHERE skip_topics.environment_id != alerta_environments.id AND skip_topics.topic_id != topics.topic_id"

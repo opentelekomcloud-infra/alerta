@@ -81,7 +81,7 @@ class ZulipBot(PluginBase):  # PluginBase
         template_name = '_'.join(alert.service)
 
         self.check_updates()
-        breakpoint()
+
         if alert.status in ['ack', 'blackout', 'closed']:
             return
         elif alert.repeat and delta_minutes(alert.last_receive_time) <= ZULIP_REPEAT_INTERVAL:
