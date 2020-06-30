@@ -18,6 +18,10 @@ LOG = logging.getLogger('alerta.plugins.zulip')
 
 ZULIP_API_KEY = app.config.get('ZULIP_API_KEY') \
                 or os.environ.get('ZULIP_API_KEY')
+ZULIP_CERT = app.config.get('ZULIP_CERT') \
+             or os.environ.get('ZULIP_CERT')
+ZULIP_CERT_KEY = app.config.get('ZULIP_CERT_KEY') \
+                 or os.environ.get('ZULIP_CERT_KEY')
 ZULIP_EMAIL = app.config.get('ZULIP_EMAIL') \
               or os.environ.get('ZULIP_EMAIL')
 ZULIP_SITE = app.config.get('ZULIP_SITE') \
@@ -34,7 +38,6 @@ ZULIP_REPEAT_INTERVAL = app.config.get('ZULIP_REPEAT_INTERVAL') \
                         or os.environ.get('ZULIP_REPEAT_INTERVAL', 5)
 DATABASE_URL = app.config.get('DATABASE_URL') \
                or os.environ.get('DATABASE_URL')
-
 
 DEFAULT_TMPL = """
 {% if customer %}Customer: `{{customer}}` {% endif %}
@@ -60,7 +63,9 @@ class ZulipBot(PluginBase):  # PluginBase
         zulip_args = {
             'site': ZULIP_SITE,
             'email': ZULIP_EMAIL,
-            'api_key': ZULIP_API_KEY
+            'api_key': ZULIP_API_KEY,
+            'client_cert': ZULIP_CERT,
+            'client_cert_key': ZULIP_CERT_KEY
         }
         if ZULIP_ALLOW_UNSECURE is not None:
             zulip_args['insecure'] = ZULIP_ALLOW_UNSECURE
