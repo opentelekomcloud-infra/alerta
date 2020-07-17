@@ -28,3 +28,13 @@
            environment_id SERIAL REFERENCES alerta_environments,
            topic_id SERIAL REFERENCES topics
          )'
+- name: zulip_topics
+  params: 'CREATE TABLE IF NOT EXISTS zulip_topics
+         (
+           topic_id SERIAL PRIMARY KEY,
+           topic_name VARCHAR(40) NOT NULL,
+           zulip_to VARCHAR(255),
+           zulip_subject VARCHAR(255),
+           template_id SERIAL REFERENCES templates
+           environment_id SERIAL REFERENCES alerta_environments,
+         )'
