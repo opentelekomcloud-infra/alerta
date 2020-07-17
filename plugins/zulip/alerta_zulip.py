@@ -53,9 +53,7 @@ class ZulipBot(PluginBase):  # PluginBase
         self.db = DBHelper(self.connection_string)
         self.structure = DATABASE
         self.db_data = DB_ROWS
-        self.ZULIP_TEMPLATES = {}
         self.ZULIP_SERVICE_TOPIC_MAP = {}
-        self.SKIP_MAP = []
 
         zulip_args = {
             'site': ZULIP_SITE,
@@ -82,18 +80,23 @@ class ZulipBot(PluginBase):  # PluginBase
 
         self.check_updates()
 
+        template = Template(DEFAULT_TMPL)
+        message_to = None
+        message_subject = None
+
         if alert.status in ['ack', 'blackout', 'closed']:
             return
         elif alert.repeat and delta_minutes(alert.last_receive_time) <= ZULIP_REPEAT_INTERVAL:
             return
-        for item in self.SKIP_MAP:
-            if alert.environment == item.environment and template_name == item.topic and item.skip is True:
+        for item in self.ZULIP_SERVICE_TOPIC_MAP:
+            if alert.environment == self.ZULIP_SERVICE_TOPIC_MAP[item].environment and \
+                    template_name == item.split('.')[0] and \
+                    self.ZULIP_SERVICE_TOPIC_MAP[item].skip is False:
+                template = Template(self.ZULIP_SERVICE_TOPIC_MAP[item].template)
+                message_subject = self.ZULIP_SERVICE_TOPIC_MAP[item].subject
+                message_to = self.ZULIP_SERVICE_TOPIC_MAP[item].to
+            elif self.ZULIP_SERVICE_TOPIC_MAP[item].skip is True:
                 return
-
-        if template_name in self.ZULIP_TEMPLATES:
-            template = Template(self.ZULIP_TEMPLATES[template_name])
-        else:
-            template = Template(DEFAULT_TMPL)
 
         try:
             text = template.render(alert.__dict__)
@@ -103,15 +106,6 @@ class ZulipBot(PluginBase):  # PluginBase
         response = None
 
         try:
-            message_to = None
-            message_subject = None
-            if (self.ZULIP_SERVICE_TOPIC_MAP
-                    and isinstance(self.ZULIP_SERVICE_TOPIC_MAP, dict)):
-                if template_name in self.ZULIP_SERVICE_TOPIC_MAP:
-                    val = self.ZULIP_SERVICE_TOPIC_MAP[template_name]
-                    message_subject = val.subject
-                    message_to = val.to
-
             if not message_to:
                 message_to = ZULIP_TO
             if not message_subject:
@@ -143,9 +137,7 @@ class ZulipBot(PluginBase):  # PluginBase
     def check_updates(self):
         """Load/Re-Load Alerta configuration Topics and Templates"""
         self.db.__connect__()
-        self.ZULIP_TEMPLATES = self.db.get_zulip_templates()
         self.ZULIP_SERVICE_TOPIC_MAP = self.db.get_topics()
-        self.SKIP_MAP = self.db.get_skip_list()
         self.db.__disconnect__()
 
 

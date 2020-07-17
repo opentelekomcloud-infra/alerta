@@ -59,8 +59,11 @@ E'[**APImon Alert**](https://alerts.eco.tsi-dev.otc-service.com/alert/{{id}})\n
              (16, 'apimon_task_executor', 'Alerts','apimon_task_executor', (SELECT template_id from templates WHERE template_name='BASE')),
              (17, 'Announcements', 'Alerts','Announcements', (SELECT template_id from templates WHERE template_name='BASE')),
              (18, 'apimon_os', 'Alerts','apimon_os', (SELECT template_id from templates WHERE template_name='BASE')) ON CONFLICT (topic_id) DO NOTHING"
-- name: skip_topics
-  params: "INSERT INTO skip_topics(environment_id, topic_id)
-          SELECT alerta_environments.id, topics.topic_id FROM alerta_environments CROSS JOIN topics
-          EXCEPT SELECT skip_topics.environment_id, skip_topics.topic_id FROM skip_topics, alerta_environments, topics
-          WHERE skip_topics.environment_id != alerta_environments.id AND skip_topics.topic_id != topics.topic_id"
+- name: zulip_topics
+  params: "INSERT INTO zulip_topics(topic_name, zulip_to, zulip_subject, template_id, environment_id)
+           SELECT t.topic_name, t.zulip_to, t.zulip_subject, te.template_id, ae.id
+           FROM topics as t CROSS JOIN templates as te, alerta_environments as ae
+           WHERE t.templ_id = te.template_id
+           EXCEPT SELECT z.topic_name, z.zulip_to, z.zulip_subject, z.template_id, z.environment_id
+           FROM zulip_topics as z, alerta_environments as ae, templates as te
+           WHERE z.environment_id != ae.id AND z.template_id != te.template_id"
