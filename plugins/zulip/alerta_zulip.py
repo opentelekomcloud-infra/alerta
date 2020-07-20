@@ -35,6 +35,7 @@ ZULIP_REPEAT_INTERVAL = app.config.get('ZULIP_REPEAT_INTERVAL') \
 DATABASE_URL = app.config.get('DATABASE_URL') \
                or os.environ.get('DATABASE_URL')
 
+
 DEFAULT_TMPL = """
 {% if customer %}Customer: `{{customer}}` {% endif %}
 *[{{ status.capitalize() }}] {{ environment }} {{ severity.capitalize() }}*
@@ -116,13 +117,13 @@ class ZulipBot(PluginBase):  # PluginBase
                 'subject': message_subject.strip(),
                 'content': text
             }
-            LOG.warning('Zulip: message=%s', text)
+            LOG.info('Zulip: message=%s', text)
 
             response = self.bot.send_message(request)
 
             if response['result'] != 'success':
                 LOG.warning('Error sending alert message to Zulip %s' %
-                            response['msg'])
+                         response['msg'])
         except Exception as e:
             raise RuntimeError("Zulip: ERROR - %s", e)
 
