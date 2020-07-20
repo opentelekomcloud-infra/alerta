@@ -39,7 +39,7 @@ E'[**APImon Alert**](https://alerts.eco.tsi-dev.otc-service.com/alert/{{id}})\n
 {% endfor %}\n
 {% if ''logUrl'' in attributes %}[Execution Log]({{ attributes.logUrl }}){% endif %}') ON CONFLICT (template_id) DO NOTHING"
 - name: zulip_topics
-  params: "INSERT INTO zulip_topics(topic_id, topic_name, zulip_to, zulip_subject, template_id, environment_id)
+  params: "INSERT INTO zulip_topics(topic_id, topic_name, zulip_to, zulip_subject, template_id, environment_id, skip)
            VALUES
              (1, 'DEFAULT_TMPL', Null, Null, 1, 1, false),
              (2, 'DEFAULT_TMPL', Null, Null, 1, 2, false),
