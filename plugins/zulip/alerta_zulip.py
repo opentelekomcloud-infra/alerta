@@ -36,6 +36,7 @@ DATABASE_URL = app.config.get('DATABASE_URL') \
                or os.environ.get('DATABASE_URL')
 
 
+TIMESTAMP_PATTERN = '%Y-%m-%dT%H:%M:%S.%fZ'
 DEFAULT_TMPL = """
 {% if customer %}Customer: `{{customer}}` {% endif %}
 *[{{ status.capitalize() }}] {{ environment }} {{ severity.capitalize() }}*
@@ -86,7 +87,7 @@ class ZulipBot(PluginBase):  # PluginBase
 
         if alert.status in ['ack', 'blackout', 'closed']:
             return
-        elif alert.repeat and delta_minutes(alert.last_receive_time) <= ZULIP_REPEAT_INTERVAL:
+        elif alert.repeat and delta_minutes(alert.history[-1]['updateTime']) <= ZULIP_REPEAT_INTERVAL:
             return
         for item in self.ZULIP_SERVICE_TOPIC_MAP:
             if alert.environment == self.ZULIP_SERVICE_TOPIC_MAP[item].environment and \
@@ -144,4 +145,6 @@ class ZulipBot(PluginBase):  # PluginBase
 def delta_minutes(last_receive_time) -> int:
     if last_receive_time is None:
         return 0
-    return (datetime.utcnow().timestamp() - last_receive_time.timestamp()) / 60
+    if isinstance(last_receive_time, str):
+        last_receive_time = datetime.strptime(last_receive_time, TIMESTAMP_PATTERN)
+    return int((datetime.utcnow().timestamp() - last_receive_time.timestamp()) / 60)
