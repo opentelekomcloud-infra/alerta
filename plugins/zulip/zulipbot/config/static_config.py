@@ -49,38 +49,21 @@ class BaseConfiguration:
 
 
 @dataclass(frozen=True)
-class AlertaConfiguration:
-    """Alerta configuration class"""
-    config_id: int
-    config_name: str
-    alerta_endpoint: str
-    alerta_timeout: int
-    alerta_debug: bool
-    skip_environment: str
-    repeat_interval: int
-
-
-@dataclass(frozen=True)
-class TopicMap:
+class ZulipTopicMap:
     """Topic map class"""
     to: str
     subject: str
-
-
-@dataclass(frozen=True)
-class SkipMap:
-    """Topic map class"""
-    skip: bool
+    template: str
     environment: str
-    topic: str
+    skip: bool
 
 
 def topic_map(data: list):
     """Topic map"""
     map = {}
-    dct = {item[0]: item[1:] for item in data}
+    dct = {item[0] + '.' + item[4]: item[1:] for item in data}
     for key, value in dct.items():
-        map.update({key: TopicMap(*value)})
+        map.update({key: ZulipTopicMap(*value)})
     return map
 
 

@@ -2,7 +2,7 @@ import logging
 
 import psycopg2
 
-from zulipbot.config.static_config import topic_map, SkipMap
+from zulipbot.config.static_config import topic_map
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
@@ -55,15 +55,10 @@ class DBHelper:
         self.cur.execute(sql)
         self.con.commit()
 
-    def get_zulip_templates(self):
-        return dict(self.get(columns='topic_name, template_data', table='templates',
-                             custom_clause='INNER JOIN topics ON templates.template_id=topics.templ_id'))
-
     def get_topics(self):
-        return topic_map(self.get(table='topics', columns='topic_name, zulip_to, zulip_subject'))
-
-    def get_skip_list(self):
-        return [SkipMap(*item) for item in
-                (self.get(columns='sk.skip, env.name, tpc.topic_name', table='skip_topics sk',
-                          custom_clause='INNER JOIN alerta_environments env ON sk.environment_id = env.id '
-                                        'INNER JOIN topics tpc ON sk.topic_id = tpc.topic_id'))]
+        return topic_map(self.get(
+            table='zulip_topics',
+            columns='topic_name, zulip_to, zulip_subject, template_data, name, skip',
+            custom_clause='INNER JOIN templates ON templates.template_id = zulip_topics.template_id '
+                          'INNER JOIN alerta_environments ON alerta_environments.id = zulip_topics.environment_id '
+                          'ORDER BY topic_name ASC'))
