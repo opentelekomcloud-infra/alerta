@@ -35,6 +35,7 @@ ZULIP_REPEAT_INTERVAL = app.config.get('ZULIP_REPEAT_INTERVAL') \
 DATABASE_URL = app.config.get('DATABASE_URL') \
                or os.environ.get('DATABASE_URL')
 
+
 TIMESTAMP_PATTERN = '%Y-%m-%dT%H:%M:%S.%fZ'
 DEFAULT_TMPL = """
 {% if customer %}Customer: `{{customer}}` {% endif %}
@@ -144,7 +145,4 @@ class ZulipBot(PluginBase):  # PluginBase
 def delta_minutes(last_receive_time) -> int:
     if last_receive_time is None:
         return 0
-    if isinstance(last_receive_time, str):
-        last_receive_time = datetime.strptime(last_receive_time, TIMESTAMP_PATTERN)
-    last_receive_time = last_receive_time.replace(hour=last_receive_time.hour - 1)
     return int((datetime.utcnow().timestamp() - last_receive_time.timestamp()) / 60)
