@@ -86,7 +86,7 @@ class ZulipBot(PluginBase):  # PluginBase
 
         if alert.status in ['ack', 'blackout', 'closed']:
             return
-        elif alert.repeat and delta_minutes(alert.history[-1]['updateTime']) <= ZULIP_REPEAT_INTERVAL:
+        elif alert.repeat and delta_minutes(alert.last_receive_time) <= ZULIP_REPEAT_INTERVAL:
             return
         for item in self.ZULIP_SERVICE_TOPIC_MAP:
             if alert.environment == self.ZULIP_SERVICE_TOPIC_MAP[item].environment and \
