@@ -2,7 +2,6 @@ import logging
 import os
 from datetime import datetime
 
-import pytz as pytz
 import zulip
 from jinja2 import Template, UndefinedError
 
@@ -13,7 +12,6 @@ try:
     from alerta.plugins import app  # alerta >= 5.0
 except ImportError:
     from alerta.app import app  # alerta < 5.0
-from alerta.plugins import PluginBase
 
 LOG = logging.getLogger('alerta.plugins.zulip')
 
@@ -36,8 +34,6 @@ ZULIP_REPEAT_INTERVAL = app.config.get('ZULIP_REPEAT_INTERVAL') \
 DATABASE_URL = app.config.get('DATABASE_URL') \
                or os.environ.get('DATABASE_URL')
 
-
-TZ = pytz.timezone('Europe/Berlin')
 TIMESTAMP_PATTERN = '%Y-%m-%dT%H:%M:%S.%fZ'
 DEFAULT_TMPL = """
 {% if customer %}Customer: `{{customer}}` {% endif %}
@@ -126,7 +122,7 @@ class ZulipBot(PluginBase):  # PluginBase
 
             if response['result'] != 'success':
                 LOG.warning('Error sending alert message to Zulip %s' %
-                         response['msg'])
+                            response['msg'])
         except Exception as e:
             raise RuntimeError("Zulip: ERROR - %s", e)
 
@@ -149,4 +145,5 @@ def delta_minutes(last_receive_time) -> int:
         return 0
     if isinstance(last_receive_time, str):
         last_receive_time = datetime.strptime(last_receive_time, TIMESTAMP_PATTERN)
-    return int((datetime.now(TZ).timestamp() - last_receive_time.timestamp()) / 60)
+    last_receive_time = last_receive_time.replace(hour=last_receive_time.hour - 1)
+    return int((datetime.utcnow().timestamp() - last_receive_time.timestamp()) / 60)
