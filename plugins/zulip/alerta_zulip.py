@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import datetime
 
+import pytz as pytz
 import zulip
 from jinja2 import Template, UndefinedError
 
@@ -36,6 +37,7 @@ DATABASE_URL = app.config.get('DATABASE_URL') \
                or os.environ.get('DATABASE_URL')
 
 
+TZ = pytz.timezone('Europe/Berlin')
 TIMESTAMP_PATTERN = '%Y-%m-%dT%H:%M:%S.%fZ'
 DEFAULT_TMPL = """
 {% if customer %}Customer: `{{customer}}` {% endif %}
@@ -147,4 +149,4 @@ def delta_minutes(last_receive_time) -> int:
         return 0
     if isinstance(last_receive_time, str):
         last_receive_time = datetime.strptime(last_receive_time, TIMESTAMP_PATTERN)
-    return int((datetime.utcnow().timestamp() - last_receive_time.timestamp()) / 60)
+    return int((datetime.now(TZ).timestamp() - last_receive_time.timestamp()) / 60)
