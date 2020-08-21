@@ -88,7 +88,7 @@ class ZulipBot(PluginBase):  # PluginBase
             previous_alert_time = alert.history[-1]['updateTime']
         except (TypeError, IndexError) as Err:
             LOG.error('History not accessible: message=%s', Err)
-            LOG.error('Alert body=%s', alert)
+            LOG.error('Alert body=%s', alert.get_body(history=True))
             previous_alert_time = alert.last_receive_time
 
         if alert.status in ['ack', 'blackout', 'closed']:
