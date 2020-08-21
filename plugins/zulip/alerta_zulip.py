@@ -148,7 +148,6 @@ class ZulipBot(PluginBase):  # PluginBase
 
 
 def delta_minutes(last_receive_time) -> int:
-    LOG.error('Last receive time=%s', last_receive_time)
     if last_receive_time is None:
         return 0
     if isinstance(last_receive_time, str):
