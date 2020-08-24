@@ -2,7 +2,7 @@
     name: alerta-build-image
     parent: build-docker-image
     description: Build alerta container image
-    timeout: 2700  # 45 minutes
+    timeout: 2700 # 45 minutes
     provides: alerta-container-image
     vars: &alerta_image_vars
       docker_images:
