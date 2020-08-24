@@ -4,19 +4,16 @@
     description: Build alerta container image
     timeout: 2700 # 45 minutes
     provides: alerta-container-image
-    vars: &alerta_image_vars
+    vars: &alerta_images
       docker_images:
         - context: .
           repository: otcinfra/alerta
-          tags:
-            # If zuul.tag is defined: [ '3', '3.19', '3.19.0' ].  Only works for 3-component tags.
-            # Otherwise: ['latest']
-            &imagetag "['latest']"
 
 - job:
     name: alerta-upload-image
     parent: otcinfra-upload-image
-    vars: *alerta_image_vars
+    provides: alerta-container-image
+    vars: *alerta_images
 
 - project:
     check:
