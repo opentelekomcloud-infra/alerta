@@ -4,7 +4,7 @@
     description: Build alerta container image
     timeout: 2700 # 45 minutes
     provides: alerta-container-image
-    vars: &alerta_images
+    vars: &alerta_image_vars
       docker_images:
         - context: .
           repository: otcinfra/alerta
@@ -13,7 +13,12 @@
     name: alerta-upload-image
     parent: otcinfra-upload-image
     provides: alerta-container-image
-    vars: *alerta_images
+    vars: *alerta_image_vars
+
+- job:
+    name: alerta-promote-image
+    parent: otcinfra-promote-image
+    vars: *alerta_image_vars
 
 - project:
     check:
@@ -22,3 +27,6 @@
     gate:
       jobs:
         - alerta-upload-image
+    promote:
+      jobs:
+        - aleta-promote-image
