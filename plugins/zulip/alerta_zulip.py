@@ -96,13 +96,13 @@ class ZulipBot(PluginBase):  # PluginBase
             return
         for item in self.ZULIP_SERVICE_TOPIC_MAP:
             if alert.environment == self.ZULIP_SERVICE_TOPIC_MAP[item].environment and \
-                    template_name == item.split('.')[0] and \
-                    self.ZULIP_SERVICE_TOPIC_MAP[item].skip is False:
+                    template_name == item.split('.')[0]:
+                if self.ZULIP_SERVICE_TOPIC_MAP[item].skip:
+                    return
                 template = Template(self.ZULIP_SERVICE_TOPIC_MAP[item].template)
                 message_subject = self.ZULIP_SERVICE_TOPIC_MAP[item].subject
                 message_to = self.ZULIP_SERVICE_TOPIC_MAP[item].to
-            elif self.ZULIP_SERVICE_TOPIC_MAP[item].skip is True:
-                return
+                break
 
         try:
             text = template.render(alert.__dict__)
