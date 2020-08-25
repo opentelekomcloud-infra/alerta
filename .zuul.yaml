@@ -2,7 +2,7 @@
     name: alerta-build-image
     parent: build-docker-image
     description: Build alerta container image
-    timeout: 2700  # 45 minutes
+    timeout: 2700 # 45 minutes
     provides: alerta-container-image
     vars: &alerta_image_vars
       docker_images:
@@ -16,12 +16,22 @@
 - job:
     name: alerta-upload-image
     parent: otcinfra-upload-image
+    provides: alerta-container-image
+    vars: *alerta_image_vars
+
+- job:
+    name: alerta-promote-image
+    parent: otcinfra-promote-image
     vars: *alerta_image_vars
 
 - project:
+    merge-mode: squash-merge
     check:
       jobs:
         - alerta-build-image
     gate:
       jobs:
         - alerta-upload-image
+    promote:
+      jobs:
+        - alerta-promote-image
