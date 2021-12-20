@@ -1,4 +1,4 @@
-from alerta/alerta-web:8.3.3
+from alerta/alerta-web:8.7.0
 
 LABEL maintainer="Artem Goncharov <artem.goncharov@gmail.com>"
 
