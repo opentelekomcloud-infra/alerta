@@ -7,7 +7,7 @@
     vars: &alerta_image_vars
       docker_images:
         - context: .
-          repository: otcinfra/alerta
+          repository: opentelekomcloud/alerta
           tags:
             # If zuul.tag is defined: [ '3', '3.19', '3.19.0' ].  Only works for 3-component tags.
             # Otherwise: ['latest']
@@ -15,7 +15,7 @@
 
 - job:
     name: alerta-upload-image
-    parent: otcinfra-upload-image
+    parent: otcinfra-upload-image-quay
     provides: alerta-container-image
     vars: *alerta_image_vars
 
@@ -32,6 +32,3 @@
     gate:
       jobs:
         - alerta-upload-image
-    promote:
-      jobs:
-        - alerta-promote-image
