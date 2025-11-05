@@ -15,7 +15,7 @@
     nodeset:
       nodes:
         - name: fedora-pod
-          label: pod-fedora-38
+          label: pod-fedora-39
 
 - job:
     name: alerta-upload-image
