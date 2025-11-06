@@ -14,8 +14,8 @@
             &imagetag "{{ zuul.tag is defined | ternary([zuul.get('tag', '').split('.')[0], '.'.join(zuul.get('tag', '').split('.')[:2]), zuul.get('tag', '')], ['latest']) }}"
     nodeset:
       nodes:
-        - name: fedora-pod
-          label: pod-fedora-39
+        - name: fedora-40
+          label: fedora-40
 
 - job:
     name: alerta-upload-image
